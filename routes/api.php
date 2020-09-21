@@ -112,3 +112,8 @@ Route::middleware('auth:api')->group(function () {
 Route::middleware('auth:api')->group(function () {
     Route::post('/admin/books/delete/{id}',[AdminActionController::class,'deleteBook'])->middleware('api.Admin')->name('AdminDeleteBook.api');
 });
+
+/* Trial Route */
+Route::middleware('auth:api')->group(function () {
+    Route::post('/author/books/checkacess/{id}',[BookRecordController::class,'checkaccess'])->middleware('api.Author')->name('checkaccess.api');
+});

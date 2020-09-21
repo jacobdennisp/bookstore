@@ -51,15 +51,16 @@ class BookRecordController extends Controller
     /* Update Book based on the user id */
     public function updateMyBook(Request $request,$id){
         
-        $editoraccess = $request->user()->id;        
-        $authorsid = DB::table("bookrecord")
-        ->where("id",$request->id)
-        ->pluck("author_id");            
-            foreach ($authorsid as $val) {
-                $authoraccess = $val;
-            }
+        $data = bookrecord::find($id);
+        $authorid=$data -> author_id;
+        
+        $editoraccess = $request->user()->id;      
             
-        if ($editoraccess == $authoraccess){
+        if ($editoraccess != $authorid){
+            $response = ['message' =>  'You do not have Access to This Book'];
+            return response($response, 401);     
+        } else  {
+           
             $books = bookrecord::find($id);
             $books->name = request('name');
             $books->description = request('description');
@@ -67,31 +68,41 @@ class BookRecordController extends Controller
             $books->save();
             $books->update($request->all());
             $response = ['message' =>  'Book was Updated Successfully'];
-            return response($response, 200);            
-        } else  {
-            $response = ['message' =>  'You do not have Access to This Book'];
-            return response($response, 401);
+            return response($response, 200);   
         }
     }
 
     //Delete Book Details based on the user Id*/
     public function deleteMyBook(Request $request, $id)
     {
-        $editoraccess = $request->user()->id;        
-        $authorsid = DB::table("bookrecord")
-        ->where("id",$request->id)
-        ->pluck("author_id");
+        $data = bookrecord::find($id);
+        $authorid=$data -> author_id;
+        
+        $editoraccess = $request->user()->id;      
             
-            foreach ($authorsid as $val) {
-                $authoraccess = $val;
-            }
-
-        if ($editoraccess != $authoraccess) {
+        if ($editoraccess != $authorid){
             $response = ['message' =>  'You do not have Access to This Book'];
-            return response($response, 401);
+            return response($response, 401); 
         } else {
             bookrecord::find($id)->delete();
             $response = ['message' =>  'Book Deleted Successfully'];
+            return response($response, 200);
+        }
+    }
+
+    //Check access based on user id
+    public function checkaccess(Request $request, $id)
+    {    
+        $data = bookrecord::find($id);
+        $authorid=$data -> author_id;        
+        $editoraccess = $request->user()->id;              
+
+        if ($editoraccess != $authorid) {
+            $response = ['message' =>  'You Do Not have access to this Book'];
+            return response($response, 401);
+        } else {
+            
+            $response = ['message' =>  'You have access to this Book'];
             return response($response, 200);
         }
     }
